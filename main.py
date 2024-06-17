@@ -1,3 +1,5 @@
+from configparser import ConfigParser
+import json
 import logging
 import dremio_api
 from traverse_catalog import traverse_dremio_catalog
@@ -5,8 +7,6 @@ import os
 import sys
 import urllib3
 urllib3.disable_warnings()
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
 
 # Configure logging
 logging.basicConfig(stream=sys.stdout,
@@ -70,36 +70,19 @@ def generate_grant_sql(config: dict, catalog_entries: list[dict]):
 
 if __name__ == '__main__':
 
-    DREMIO_ENDPOINT = ""
-    DREMIO_PAT = ""
+    # Read Dremio credentials and config from files
+    filepath_dir = os.path.dirname(os.path.abspath(__file__))
+    parser = ConfigParser()
+    credentials_file = os.path.join(filepath_dir, "credentials.cfg")
+    logger.info(f"Attempting to read credentials from {credentials_file}")
+    _ = parser.read(credentials_file)
+    DREMIO_PAT = parser.get('Authentication', 'dremio_pat')
+    DREMIO_ENDPOINT = parser.get('Authentication', 'dremio_endpoint')
     
-    config = {
-        "GRANT PRIVILEGES": [
-            "SELECT",
-            "ALTER",
-            "VIEW REFLECTION"
-        ],
-        "ON SCOPE PATH": [
-            "demo_space"
-        ],
-        "EXCLUDING FOLDER PATHS": [
-            [
-                "demo_space",
-                "subfolder",
-                "app1"
-            ],
-            [
-                "demo_space",
-                "subfolder2",
-                "subsubfolder2_2",
-                "app2"
-            ],
-        ],
-        "TO ROLES": [
-            "Role1",
-            "Role2"
-        ]
-    }
+    config_file = os.path.join(filepath_dir, "config.json")
+    logger.info(f"Attempting to read config from {config_file}")
+    with open(config_file, 'r') as f:
+        config = json.load(f)
 
     api = dremio_api.DremioAPI(DREMIO_PAT, DREMIO_ENDPOINT, timeout=60)
     validate_config(config)

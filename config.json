@@ -1,0 +1,27 @@
+{
+    "GRANT PRIVILEGES": [
+        "SELECT",
+        "ALTER",
+        "VIEW REFLECTION"
+    ],
+    "ON SCOPE PATH": [
+        "demo_space"
+    ],
+    "EXCLUDING FOLDER PATHS": [
+        [
+            "demo_space",
+            "subfolder",
+            "app1"
+        ],
+        [
+            "demo_space",
+            "subfolder2",
+            "subsubfolder2_2",
+            "app2"
+        ]
+    ],
+    "TO ROLES": [
+        "Role1",
+        "Role2"
+    ]
+}
