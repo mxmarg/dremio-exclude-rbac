@@ -9,7 +9,10 @@ import urllib3
 urllib3.disable_warnings()
 
 # Configure logging
-logging.basicConfig(stream=sys.stdout,
+logging.basicConfig(handlers=[
+                        logging.FileHandler("dremio_exclude_rbac.log"),
+                        logging.StreamHandler()
+                    ],
                     format="%(levelname)s\t%(asctime)s - %(message)s",
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -90,17 +93,18 @@ if __name__ == '__main__':
     sql_statements = generate_grant_sql(config, catalog_entries)
 
     # Results
-    print("\n__________")
-    print("Pseudo-SQL:")
-    print(f"""
+    logger.info(f"""
+__________
+Pseudo-SQL:
+    
           GRANT {config["GRANT PRIVILEGES"]} 
           ON SPACE/FOLDER {config["ON SCOPE PATH"]} 
           EXLCUDING FOLDER(s) {config["EXCLUDING FOLDER PATHS"]} 
           TO ROLE(s) {config["TO ROLES"]};
           """)
-    print("The following SQL statements need to be run in order to provide the same scope as the pseudo-SQL above:")
-    print("\n__________")
+    logger.info("The following SQL statements need to be run in order to provide the same scope as the pseudo-SQL above:")
+    logger.info("__________")
     for sql in sql_statements:
-        print(sql)
-    print("__________\n")
+        logger.info(sql)
+    logger.info("__________\n")
 
