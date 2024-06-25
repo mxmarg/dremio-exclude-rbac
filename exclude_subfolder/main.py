@@ -82,7 +82,7 @@ if __name__ == '__main__':
     # Read Dremio credentials and config from files
     filepath_dir = os.path.dirname(os.path.abspath(__file__))
     parser = ConfigParser()
-    credentials_file = os.path.join(filepath_dir, "credentials.cfg")
+    credentials_file = os.path.join(filepath_dir, "../credentials.cfg")
     logger.info(f"Attempting to read credentials from {credentials_file}")
     _ = parser.read(credentials_file)
     DREMIO_PAT = parser.get('Authentication', 'dremio_pat')
