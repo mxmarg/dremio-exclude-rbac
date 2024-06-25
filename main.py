@@ -38,9 +38,6 @@ def validate_config(config: dict):
         if len(p) == len(scope_path):
             raise ValueError(f"Folder path exclusion {p} cannot be the same depth as the scope path {scope_path}")
         
-    # Validate if roles exist in AD?
-    # TBD
-
     # Validate folder privileges (Source: https://docs.dremio.com/current/security/rbac/privileges/#folder-privileges)
     DREMIO_FOLDER_PRIVILEGES = {
         "ALTER",
@@ -55,6 +52,15 @@ def validate_config(config: dict):
     for p in config["GRANT PRIVILEGES"]:
         if p not in DREMIO_FOLDER_PRIVILEGES:
             raise ValueError(f'Unexpected privilege "{p}" for type folder, please see the Dremio docs for supported privileges: https://docs.dremio.com/current/security/rbac/privileges/#folder-privileges')
+
+
+    # TODO: Validate of roles exist in AD
+
+    # TODO: Validate Scope and Exclude paths for their existence
+
+    # TODO: Validate, if privileges already exist (e.g. via sys.privileges)
+
+    # TODO: Tbd, if script should automatically grant all privileges or if they should be reviewed and/or executed manually
 
 
 def generate_grant_sql(config: dict, catalog_entries: list[dict]):
@@ -89,6 +95,7 @@ if __name__ == '__main__':
 
     api = dremio_api.DremioAPI(DREMIO_PAT, DREMIO_ENDPOINT, timeout=60)
     validate_config(config)
+    # existing_privileges = api.post_sql_query("SELECT * FROM sys.privileges")
     catalog_entries = traverse_dremio_catalog(api, config)
     sql_statements = generate_grant_sql(config, catalog_entries)
 
