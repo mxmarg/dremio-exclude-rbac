@@ -1,2 +1,2 @@
 __pycache__/
-dremio_exclude_rbac.log
+exclude_subfolder/dremio_exclude_rbac.log
