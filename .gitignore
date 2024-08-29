@@ -1,2 +1,3 @@
 __pycache__/
 exclude_subfolder/dremio_exclude_rbac.log
+.DS_Store
