@@ -15,8 +15,24 @@ logging.basicConfig(handlers=[
                     level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+def generate_drop_roles_sql(data: dict):
+    privileges: list[str] = data["rows"]
+    unique_referenced_roles = set()
+    sql_statements = []
 
-def generate_grant_sql(data: dict, grant_ownership_to_admin=true):
+    for row in privileges:
+        grantee_type = row["grantee_type"]
+        grantee_id = row["grantee_id"]
+
+        if grantee_type.lower() == 'role' and grantee_id not in {"ADMIN", "PUBLIC"}:
+            unique_referenced_roles.add(grantee_id)
+    
+    for role in unique_referenced_roles:
+        sql_statements.append(f"DROP ROLE {role}")
+    return sql_statements
+
+
+def generate_grant_sql(data: dict, grant_ownership_to_admin=True):
     privileges: list[str] = data["rows"]
     sql_statements = []
 
@@ -65,10 +81,13 @@ if __name__ == '__main__':
     with open("sys.privileges.json", 'w') as f:
         json.dump(data, f)
     
-    grant_statements = generate_grant_sql(data, grant_ownership_to_admin=true)
+    grant_statements = generate_grant_sql(data, grant_ownership_to_admin=True)
+    drop_statements = generate_drop_roles_sql(data)
 
     filename = 'grant_statements.sql'
     with open(filename, 'w') as f:
+        for line in drop_statements:
+            f.write(f"{line}\n")
         for line in grant_statements:
             f.write(f"{line}\n")
 
