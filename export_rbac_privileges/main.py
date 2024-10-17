@@ -16,7 +16,7 @@ logging.basicConfig(handlers=[
 logger = logging.getLogger(__name__)
 
 
-def generate_grant_sql(data: dict):
+def generate_grant_sql(data: dict, grant_ownership_to_admin=true):
     privileges: list[str] = data["rows"]
     sql_statements = []
 
@@ -39,6 +39,10 @@ def generate_grant_sql(data: dict):
             continue
 
         sql_statements.append(sql)
+
+        if grant_ownership_to_admin:
+            ownership_sql = f'GRANT OWNERSHIP ON {object_type} {object_id} TO ROLE "ADMIN";'
+            sql_statements.append(ownership_sql)
     
     return sql_statements
 
@@ -61,7 +65,7 @@ if __name__ == '__main__':
     with open("sys.privileges.json", 'w') as f:
         json.dump(data, f)
     
-    grant_statements = generate_grant_sql(data)
+    grant_statements = generate_grant_sql(data, grant_ownership_to_admin=true)
 
     filename = 'grant_statements.sql'
     with open(filename, 'w') as f:
